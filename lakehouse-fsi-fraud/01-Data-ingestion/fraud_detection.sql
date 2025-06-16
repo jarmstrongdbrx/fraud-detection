@@ -24,6 +24,7 @@ AS
 
 -- Reference table
 CREATE STREAMING LIVE TABLE country_coordinates
+COMMENT "Country coordinates data for mapping transactions to countries"
 AS 
   SELECT * 
   FROM cloud_files(
@@ -33,6 +34,7 @@ AS
 
 -- Fraud report (labels for ML training)
 CREATE STREAMING LIVE TABLE fraud_reports
+COMMENT "Fraud report data used as labels for machine learning training"
 AS 
   SELECT * 
   FROM cloud_files(
@@ -45,6 +47,7 @@ CREATE STREAMING LIVE TABLE silver_transactions (
   CONSTRAINT correct_data EXPECT (id IS NOT NULL),
   CONSTRAINT correct_customer_id EXPECT (customer_id IS NOT NULL)
 )
+COMMENT "Processed transactions with additional features and joined with fraud reports"
 AS 
   SELECT 
     * EXCEPT(countryOrig, countryDest, t._rescued_data, f._rescued_data), 
@@ -59,6 +62,7 @@ AS
 CREATE LIVE TABLE gold_transactions (
   CONSTRAINT amount_decent EXPECT (amount > 10)
 )
+COMMENT "Final transactions dataset including country coordinates and additional customer data"
 AS 
   SELECT 
     t.* EXCEPT(countryOrig, countryDest, is_fraud), 
